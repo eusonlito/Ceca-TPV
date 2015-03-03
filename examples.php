@@ -1,6 +1,4 @@
 <?php
-$step = empty($_GET['step']) ? 1 : (int) $_GET['step'];
-
 include __DIR__.'/src/autoload.php';
 
 # Carga tu fichero con la configuración personalizada en config.local.php
