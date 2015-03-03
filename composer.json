@@ -1,0 +1,21 @@
+{
+    "name": "ceca/tpv",
+    "keywords": ["tpv", "ceca"],
+    "description": "Package to connect with CECA TPV",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lito",
+            "email": "lito@eordes.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ceca\\Tpv\\": "src/Ceca/Tpv/"
+        }
+    },
+    "minimum-stability": "stable"
+}
