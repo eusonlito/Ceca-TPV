@@ -24,6 +24,8 @@ class Tpv
         'real' => 'https://pgw.ceca.es/cgi-bin/tpv'
     );
 
+    private $success = '$*$OKY$*$';
+
     private $values = array();
     private $hidden = array();
 
@@ -246,5 +248,10 @@ class Tpv
         }
 
         return $post['Firma'];
+    }
+
+    public function successCode()
+    {
+        return $this->success;
     }
 }
