@@ -221,4 +221,30 @@ class Tpv
 
         return sha1($this->options['ClaveCifrado'].$key);
     }
+
+    public function checkTransaction(array $post)
+    {
+        if (empty($post) || empty($post['Firma'])) {
+            throw new Exception('_POST data is empty');
+        }
+
+        $fields = array('MerchantID', 'AcquirerBIN', 'TerminalID', 'Num_operacion', 'Importe', 'TipoMoneda', 'Exponente', 'Referencia');
+        $key = '';
+
+        foreach ($fields as $field) {
+            if (empty($post[$field])) {
+                throw new Exception(sprintf('Field <strong>%s</strong> is empty and is required to verify transaction'));
+            }
+
+            $key .= $post[$field];
+        }
+
+        $signature = sha1($this->options['ClaveCifrado'].$key);
+
+        if ($signature !== $post['Firma']) {
+            throw new Exception(sprintf('Signature not valid (%s != %s)', $signature, $post['Firma']));
+        }
+
+        return $post['Firma'];
+    }
 }
