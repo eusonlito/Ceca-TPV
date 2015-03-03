@@ -15,8 +15,8 @@ class Tpv
         'Pago_soportado' => 'SSL'
     );
 
-    private $o_required = array('Environment', 'MerchantID', 'AcquirerBIN', 'TerminalID', 'Num_operacion', 'Importe', 'TipoMoneda', 'Exponente', 'URL_OK', 'URL_NOK', 'Cifrado', 'Pago_soportado');
-    private $o_optional = array('Idioma', 'Descripcion');
+    private $o_required = array('Environment', 'ClaveCifrado', 'MerchantID', 'AcquirerBIN', 'TerminalID', 'TipoMoneda', 'Exponente', 'Cifrado', 'Pago_soportado');
+    private $o_optional = array('Idioma', 'Descripcion', 'URL_OK', 'URL_NOK');
 
     private $environment = '';
     private $environments = array(
@@ -99,15 +99,8 @@ class Tpv
     {
         $this->hidden = $this->values = array();
 
-        $o_required = array('', '', 'Cifrado', 'Pago_soportado');
-        $o_optional = array('Idioma', 'Descripcion');
-
         $options['Num_operacion'] = $this->getOrder($options['Num_operacion']);
         $options['Importe'] = $this->getAmount($options['Importe']);
-
-        $options['MerchantID'] = $this->setLength($options['MerchantID'], 9);
-        $options['AcquirerBIN'] = $this->setLength($options['AcquirerBIN'], 10);
-        $options['TerminalID'] = $this->setLength($options['TerminalID'], 8);
 
         $this->setValueDefault($options, 'MerchantID', 9);
         $this->setValueDefault($options, 'AcquirerBIN', 10);
@@ -123,6 +116,10 @@ class Tpv
         $this->setValue($options, 'URL_OK');
         $this->setValue($options, 'URL_NOK');
 
+        $this->setValueLength('MerchantID', 9);
+        $this->setValueLength('AcquirerBIN', 10);
+        $this->setValueLength('TerminalID', 8);
+
         $options['Firma'] = $this->getSignature();
 
         $this->setValue($options, 'Firma');
@@ -132,14 +129,18 @@ class Tpv
         return $this;
     }
 
-    private function setLength($value, $length)
+    private function setValueLength($key, $length)
     {
-        return str_pad($value, $length, '0', STR_PAD_LEFT);
+        $this->values[$key] = str_pad($this->values[$key], $length, '0', STR_PAD_LEFT);
+
+        return $this;
     }
 
     private function setHiddensFromValues()
     {
-        return $this->hidden = $this->values;
+        $this->hidden = $this->values;
+
+        return $this;
     }
 
     public function getFormHiddens()
@@ -159,12 +160,10 @@ class Tpv
 
     private function setValueDefault(array $options, $option)
     {
-        $code = $this->option_prefix.$option;
-
         if (isset($options[$option])) {
-            $this->values[$code] = $options[$option];
+            $this->values[$option] = $options[$option];
         } elseif (isset($this->options[$option])) {
-            $this->values[$code] = $this->options[$option];
+            $this->values[$option] = $this->options[$option];
         }
 
         return $this;
@@ -173,7 +172,7 @@ class Tpv
     private function setValue(array $options, $option)
     {
         if (isset($options[$option])) {
-            $this->values[$this->option_prefix.$option] = $options[$option];
+            $this->values[$option] = $options[$option];
         }
 
         return $this;
@@ -209,18 +208,17 @@ class Tpv
 
     public function getSignature()
     {
-        $prefix = $this->option_prefix;
-        $fields = array('ClaveCifrado', 'MerchantID', 'AcquirerBIN', 'TerminalID', 'Num_operacion', 'Importe', 'TipoMoneda', 'Exponente', 'Cifrado', 'URL_OK', 'URL_NOK');
+        $fields = array('MerchantID', 'AcquirerBIN', 'TerminalID', 'Num_operacion', 'Importe', 'TipoMoneda', 'Exponente', 'Cifrado', 'URL_OK', 'URL_NOK');
         $key = '';
 
         foreach ($fields as $field) {
-            if (!isset($this->values[$prefix.$field])) {
+            if (!isset($this->values[$field])) {
                 throw new Exception(sprintf('Field <strong>%s</strong> is empty and is required to create signature key', $field));
             }
 
-            $key .= $this->values[$prefix.$field];
+            $key .= $this->values[$field];
         }
 
-        return sha1($key);
+        return sha1($this->options['ClaveCifrado'].$key);
     }
 }
