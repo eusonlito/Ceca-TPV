@@ -101,7 +101,6 @@ class Tpv
     {
         $this->hidden = $this->values = array();
 
-        $options['Num_operacion'] = $this->getOrder($options['Num_operacion']);
         $options['Importe'] = $this->getAmount($options['Importe']);
 
         $this->setValueDefault($options, 'MerchantID', 9);
@@ -178,23 +177,6 @@ class Tpv
         }
 
         return $this;
-    }
-
-    public function getOrder($order)
-    {
-        if (preg_match('/^[0-9]+$/', $order)) {
-            $order = sprintf('%012d', $order);
-        }
-
-        $len = strlen($order);
-
-        if (($len < 4) || ($len > 12)) {
-            throw new Exception('Order code must have more than 4 digits and less than 12');
-        } elseif (!preg_match('/^[0-9]{4}[0-9a-zA-Z]{0,8}$/', $order)) {
-            throw new Exception('First four order digits must be numbers and then only are allowed numbers and letters');
-        }
-
-        return $order;
     }
 
     public function getAmount($amount)
