@@ -116,6 +116,7 @@ class Tpv
         $this->setValue($options, 'Importe');
         $this->setValue($options, 'URL_OK');
         $this->setValue($options, 'URL_NOK');
+        $this->setValue($options, 'Descripcion');
 
         $this->setValueLength('MerchantID', 9);
         $this->setValueLength('AcquirerBIN', 10);
