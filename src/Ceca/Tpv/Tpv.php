@@ -16,7 +16,7 @@ class Tpv
     );
 
     private $o_required = array('Environment', 'ClaveCifrado', 'MerchantID', 'AcquirerBIN', 'TerminalID', 'TipoMoneda', 'Exponente', 'Cifrado', 'Pago_soportado');
-    private $o_optional = array('Idioma', 'Descripcion', 'URL_OK', 'URL_NOK');
+    private $o_optional = array('Idioma', 'Descripcion', 'URL_OK', 'URL_NOK', 'Tipo_operacion', 'Datos_operaciones');
 
     private $environment = '';
     private $environments = array(
@@ -117,6 +117,8 @@ class Tpv
         $this->setValue($options, 'URL_OK');
         $this->setValue($options, 'URL_NOK');
         $this->setValue($options, 'Descripcion');
+        $this->setValue($options, 'Tipo_operacion');
+        $this->setValue($options, 'Datos_operaciones');
 
         $this->setValueLength('MerchantID', 9);
         $this->setValueLength('AcquirerBIN', 10);
@@ -238,3 +240,4 @@ class Tpv
         return $this->success;
     }
 }
+
