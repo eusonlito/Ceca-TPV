@@ -76,4 +76,6 @@ $order->save();
 die($TPV->successCode());
 ```
 
-Más información sobre la integración del TPV en https://comercios.ceca.es/docs_constpv/img/manual_comercios.pdf
+Más información sobre la integración del TPV en:
+* https://comercios.ceca.es/docs_constpv/img/manual_comercios.pdf
+* https://comercios.ceca.es/docs_constpv/img/manual_gestor_operaciones.pdf
