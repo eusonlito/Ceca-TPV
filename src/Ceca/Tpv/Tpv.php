@@ -16,7 +16,7 @@ class Tpv
     );
 
     private $o_required = array('Environment', 'ClaveCifrado', 'MerchantID', 'AcquirerBIN', 'TerminalID', 'TipoMoneda', 'Exponente', 'Cifrado', 'Pago_soportado');
-    private $o_optional = array('Idioma', 'Descripcion', 'URL_OK', 'URL_NOK', 'Tipo_operacion', 'Datos_operaciones');
+    private $o_optional = array('Idioma', 'Descripcion', 'URL_OK', 'URL_NOK', 'Tipo_operacion', 'Datos_operaciones', 'PAN', 'Caducidad', 'CVV2', 'Pago_elegido');
 
     private $environment = '';
     private $environments = array(
@@ -120,6 +120,10 @@ class Tpv
         $this->setValue($options, 'Tipo_operacion');
         $this->setValue($options, 'Datos_operaciones');
 
+        if (!empty($options['PAN'])) {
+            $this->setCreditCardInputs($options);
+        }
+
         $this->setValueLength('MerchantID', 9);
         $this->setValueLength('AcquirerBIN', 10);
         $this->setValueLength('TerminalID', 8);
@@ -131,6 +135,16 @@ class Tpv
         $this->setHiddensFromValues();
 
         return $this;
+    }
+
+    private function setCreditCardInputs(array $options)
+    {
+        $options['Pago_elegido'] = 'SSL';
+
+        $this->setValue($options, 'PAN');
+        $this->setValue($options, 'Caducidad');
+        $this->setValue($options, 'CVV2');
+        $this->setValue($options, 'Pago_elegido');
     }
 
     private function setValueLength($key, $length)
@@ -186,11 +200,13 @@ class Tpv
     {
         if (empty($amount)) {
             return '000';
-        } elseif (preg_match('/[\.,]/', $amount)) {
-            return str_replace(array('.', ','), '', $amount);
-        } else {
-            return ($amount * 100);
         }
+
+        if (preg_match('/[\.,]/', $amount)) {
+            return str_replace(array('.', ','), '', $amount);
+        }
+
+        return ($amount * 100);
     }
 
     public function getSignature()
@@ -206,13 +222,13 @@ class Tpv
             $key .= $this->values[$field];
         }
 
-        return sha1($this->options['ClaveCifrado'].$key);
+        return $this->makeHash($key);
     }
 
     public function checkTransaction(array $post)
     {
         if (empty($post) || empty($post['Firma'])) {
-            throw new Exception('_POST data is empty');
+            throw new Exception('POST data is empty');
         }
 
         $fields = array('MerchantID', 'AcquirerBIN', 'TerminalID', 'Num_operacion', 'Importe', 'TipoMoneda', 'Exponente', 'Referencia');
@@ -220,19 +236,30 @@ class Tpv
 
         foreach ($fields as $field) {
             if (empty($post[$field])) {
-                throw new Exception(sprintf('Field <strong>%s</strong> is empty and is required to verify transaction'));
+                throw new Exception(sprintf('Field <strong>%s</strong> is empty and is required to verify transaction', $field));
             }
 
             $key .= $post[$field];
         }
 
-        $signature = sha1($this->options['ClaveCifrado'].$key);
+        $signature = $this->makeHash($key);
 
         if ($signature !== $post['Firma']) {
             throw new Exception(sprintf('Signature not valid (%s != %s)', $signature, $post['Firma']));
         }
 
         return $post['Firma'];
+    }
+
+    private function makeHash($message)
+    {
+        $message = $this->options['ClaveCifrado'].$message;
+
+        if ($this->options['Cifrado'] === 'SHA2') {
+            return hash('sha256', $message);
+        }
+
+        return sha1($message);
     }
 
     public function successCode()
