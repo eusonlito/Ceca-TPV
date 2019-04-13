@@ -20,7 +20,7 @@ class Tpv
 
     private $environment = '';
     private $environments = array(
-        'test' => 'http://tpv.ceca.es:8000/cgi-bin/tpv',
+        'test' => 'https://tpv.ceca.es/tpvweb/tpv/compra.action',
         'real' => 'https://pgw.ceca.es/cgi-bin/tpv'
     );
 
