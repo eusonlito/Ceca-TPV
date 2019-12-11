@@ -21,7 +21,7 @@ class Tpv
     private $environment = '';
     private $environments = array(
         'test' => 'https://tpv.ceca.es/tpvweb/tpv/compra.action',
-        'real' => 'https://pgw.ceca.es/cgi-bin/tpv'
+        'real' => 'https://pgw.ceca.es/tpvweb/tpv/compra.action'
     );
 
     private $success = '$*$OKY$*$';
